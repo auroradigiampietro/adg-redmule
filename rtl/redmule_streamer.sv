@@ -79,8 +79,8 @@ hci_core_intf #( .DW ( DW ),
                  .UW ( UW ) ) z_to_tcdm [0:0] ( .clk ( clk_i ) );
 // Sink module that turns the incoming Z matrix stream into virtual TCDM interface
 hci_core_sink         #(
-  .DATA_WIDTH          ( DW                          ),
-  .MISALIGNED_ACCESSES ( REALIGN                     )
+  .DATA_WIDTH          ( DW                          )
+  //.MISALIGNED_ACCESSES ( REALIGN                     )
 ) i_z_stream_sink      (                             
   .clk_i               ( clk_i                       ),
   .rst_ni              ( rst_ni                      ),
