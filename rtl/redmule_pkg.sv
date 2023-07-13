@@ -26,7 +26,7 @@ import hwpe_stream_package::*;
 package redmule_pkg;
 
   parameter int unsigned            DATA_W       = 320; // TCDM port dimension (in bits)
-  parameter int unsigned            MemDw        = 32;
+  parameter int unsigned            MemDw        = 64;
   parameter int unsigned            ADDR_W       = hci_package::DEFAULT_AW;
   parameter int unsigned            DATAW        = DATA_W - MemDw;
   parameter int unsigned            REDMULE_REGS = 19;

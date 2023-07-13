@@ -85,7 +85,8 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
     .N_CONTEXT      ( N_CONTEXT    ),
     .N_IO_REGS      ( REDMULE_REGS ),
     .N_GENERIC_REGS ( 6            ),
-    .ID_WIDTH       ( ID_WIDTH     )
+    .ID_WIDTH       ( ID_WIDTH     ),
+    .DataWidth      ( MemDw        )
   ) i_slave         (
     .clk_i          ( clk_i        ),
     .rst_ni         ( rst_ni       ),
