@@ -29,6 +29,8 @@ module redmule_top
 parameter  int unsigned  ID_WIDTH    = 8                 ,
 parameter  int unsigned  N_CORES     = 8                 ,
 parameter  int unsigned  DW          = DATA_W            , // TCDM port dimension (in bits)
+parameter  int unsigned  MemDW       = 32                ,
+parameter  int unsigned  AW          = 32                ,
 localparam int unsigned  NumContext  = N_CONTEXT         , // Number of sequential jobs for the slave device
 localparam fp_format_e   FpFormat    = FPFORMAT          , // Data format (default is FP16)
 localparam int unsigned  Height      = ARRAY_HEIGHT      , // Number of PEs within a row
@@ -46,7 +48,9 @@ localparam int unsigned  BITW        = fp_width(FpFormat)  // Number of bits for
   // TCDM master ports for the memory sID_WIDTHe
   hci_core_intf.master            tcdm       ,
   // Periph slave port for the controller sID_WIDTHe
-  hwpe_ctrl_intf_periph.slave     periph
+  hwpe_ctrl_intf_periph.slave #(.AddrWidth (AW)
+                                .DataWidth (MemDW)
+                                .ID_WIDTH (ID_WIDTH)) periph
 );
 
 localparam int unsigned DATAW_ALIGN = DATAW;

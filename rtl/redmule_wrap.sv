@@ -104,7 +104,8 @@ end
 redmule_top #(
   .ID_WIDTH     ( ID_WIDTH     ),
   .N_CORES      ( N_CORES      ),
-  .DW           ( DW           )
+  .DW           ( DW           ),
+  .MemDW        ( DW/MP        )
 ) i_redmule_top (
   .clk_i        ( clk_i        ),
   .rst_ni       ( rst_ni       ),
