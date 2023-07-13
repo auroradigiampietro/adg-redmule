@@ -70,7 +70,9 @@ localparam int unsigned  BITW        = fp_width(FpFormat)  // Number of bits for
 );
 
 hci_core_intf #(.DW(DW)) tcdm (.clk(clk_i));
-hwpe_ctrl_intf_periph #(.ID_WIDTH(ID_WIDTH)) periph (.clk(clk_i));
+hwpe_ctrl_intf_periph #(.AddrWidth (AW),
+                        .DataWidth (DW/MP),
+                        .ID_WIDTH (ID_WIDTH)) periph (.clk(clk_i));
 
 // bindings
 generate
@@ -104,8 +106,7 @@ end
 redmule_top #(
   .ID_WIDTH     ( ID_WIDTH     ),
   .N_CORES      ( N_CORES      ),
-  .DW           ( DW           ),
-  .MemDW        ( DW/MP        )
+  .DW           ( DW           )
 ) i_redmule_top (
   .clk_i        ( clk_i        ),
   .rst_ni       ( rst_ni       ),
