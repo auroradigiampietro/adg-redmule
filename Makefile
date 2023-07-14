@@ -29,7 +29,7 @@ WAVES          ?= $(mkfile_path)/wave.do
 ISA            ?= riscv
 ARCH           ?= rv
 XLEN           ?= 32
-XTEN           ?= imc
+XTEN           ?= im
 
 compile_script ?= scripts/compile.tcl
 compile_flag   ?= -suppress 2583 -suppress 13314
