@@ -78,7 +78,7 @@ hwpe_ctrl_intf_periph #(.AddrWidth (AW),
 generate
   for(genvar ii=0; ii<MP; ii++) begin: tcdm_binding
     assign tcdm_req_o  [ii] = tcdm.req;
-    assign tcdm_add_o  [ii] = tcdm.add + ii*DW/(MP*8)/8;
+    assign tcdm_add_o  [ii] = tcdm.add + ii*DW/(MP*8);
     assign tcdm_wen_o  [ii] = tcdm.wen;
     assign tcdm_be_o   [ii] = tcdm.be[(ii+1)*DW/(MP*8)-1:ii*DW/(MP*8)];
     assign tcdm_data_o [ii] = tcdm.data[(ii+1)*DW/MP-1:ii*DW/MP];
