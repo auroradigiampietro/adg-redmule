@@ -115,7 +115,8 @@ hwpe_stream_intf_stream #( .DATA_WIDTH ( DATAW_ALIGN ) ) y_buffer_fifo ( .clk( c
 hwpe_stream_intf_stream #( .DATA_WIDTH ( DATAW_ALIGN ) ) z_buffer_q    ( .clk( clk_i ) );
 hwpe_stream_intf_stream #( .DATA_WIDTH ( DATAW_ALIGN ) ) z_buffer_fifo ( .clk( clk_i ) );
 
-hwpe_ctrl_intf_periph   #( .ID_WIDTH   ( ID_WIDTH    ) ) periph_local ( .clk( clk_i ) );
+hwpe_ctrl_intf_periph   #( .ID_WIDTH   ( ID_WIDTH    ),
+                           .DataWidth  ( MemDw       ) ) periph_local ( .clk( clk_i ) );
 
 // Periph port binding from local
 always_comb begin
