@@ -72,12 +72,35 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
   logic [15:0] w_rows_iter, w_row_count_d, w_row_count_q;
   logic [15:0] z_storings_d, z_storings_q, tot_stores;
 
+  hwpe_ctrl_intf_periph   #( .ID_WIDTH   ( ID_WIDTH    ),
+                             .DataWidth  ( 32          ) ) periph_32bit ( .clk( clk_i ) );
+
   typedef enum logic [2:0] {REDMULE_IDLE, REDMULE_STARTING, REDMULE_COMPUTING, REDMULE_BUFFERING, REDMULE_STORING, REDMULE_FINISHED} redmule_ctrl_state;
   redmule_ctrl_state current, next;
 
   hwpe_ctrl_package::ctrl_regfile_t reg_file;
   hwpe_ctrl_package::ctrl_slave_t   cntrl_slave;
   hwpe_ctrl_package::flags_slave_t  flgs_slave;
+
+  // Choosing 32 of the 64 bits coming from periph.data
+  always_comb begin
+    periph_32bit.req  = periph.req;
+    periph_32bit.add  = periph.add;
+    periph_32bit.wen  = periph.wen;
+    periph_32bit.id   = periph.id;
+    if (periph.be == 8'h0F) begin
+      periph_32bit.be   = periph.be[3:0];
+      periph_32bit.data = periph.data[31:0];
+    end
+    else begin
+      periph_32bit.be   = periph.be[7:4];
+      periph_32bit.data = periph.data[63:32];
+    end 
+    periph.gnt        = periph_32bit.gnt;
+    periph.r_data     = {32'h00000000, periph_32bit.r_data};
+    periph.r_valid    = periph_32bit.r_valid;
+    periph.r_id       = periph_32bit.r_id;
+  end
 
   // Control slave interface
   hwpe_ctrl_slave  #(
@@ -86,12 +109,12 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
     .N_IO_REGS      ( REDMULE_REGS ),
     .N_GENERIC_REGS ( 6            ),
     .ID_WIDTH       ( ID_WIDTH     ),
-    .DataWidth      ( MemDw        )
+    .DataWidth      ( 32           )
   ) i_slave         (
     .clk_i          ( clk_i        ),
     .rst_ni         ( rst_ni       ),
     .clear_o        ( clear        ),
-    .cfg            ( periph       ),
+    .cfg            ( periph_32bit ),
     .ctrl_i         ( cntrl_slave  ),
     .flags_o        ( flgs_slave   ),
     .reg_file       ( reg_file     )
