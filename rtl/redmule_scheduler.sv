@@ -180,7 +180,7 @@ fpnew_pkg::fp_format_e input_cast_src_fmt ,
                        output_cast_dst_fmt;
 
 // JMP = 32 if streamer ports are 256 bit wide and parallelism is 32 bit
-localparam int unsigned JMP    = (4*DATA_W/ADDR_W) - 4;
+  localparam int unsigned JMP    = (MemDw/8 * DATA_W/MemDw) - MemDw/8;
 localparam int unsigned NBYTES = BITW/8;
 
 typedef enum logic [3:0] {ENGINE_IDLE, PRELOAD_Y, LOAD_Y, X_REQ, W_REQ, STORE_REQ, FIRST_LOAD, WAIT, WAIT_ONE, WAIT_TWO, LOAD_X, LOAD_W, STORE, SKIP_W} redmule_fsm_state;
