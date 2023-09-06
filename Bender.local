@@ -1,2 +1,1 @@
-overrides:
-    fpnew: { git: "https://github.com/pulp-platform/cvfpu.git", rev: pulp-v0.1.3 }
+
