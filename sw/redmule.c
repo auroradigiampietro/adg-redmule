@@ -57,7 +57,7 @@ int redmule16_compare_int(uint32_t *actual_z, uint32_t *golden_z, int len) {
     golden_LSHWord = (uint16_t)(golden_word & 0x0000FFFF);
 
     diff = (actual_LSHWord > golden_LSHWord) ? (actual_LSHWord - golden_LSHWord) : 0;
-    diff = (actual_LSHWord < golden_LSHWord) ? (golden_LSHWord - actual_LSHWord) : 0;
+    diff = (actual_LSHWord < golden_LSHWord) ? (golden_LSHWord - actual_LSHWord) : diff;
 
     if (diff > ERR) {
       error = 1;
@@ -72,7 +72,7 @@ int redmule16_compare_int(uint32_t *actual_z, uint32_t *golden_z, int len) {
     golden_MSHWord = (uint16_t)((golden_word >> 16) & 0x0000FFFF);
 
     diff = (actual_MSHWord > golden_MSHWord) ? (actual_MSHWord - golden_MSHWord) : 0;
-    diff = (actual_MSHWord < golden_MSHWord) ? (golden_MSHWord - actual_MSHWord) : 0;
+    diff = (actual_MSHWord < golden_MSHWord) ? (golden_MSHWord - actual_MSHWord) : diff;
 
     if (diff > ERR) {
       error = 1;
