@@ -376,6 +376,7 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
   /*---------------------------------------------------------------------------------------------*/
   /*                            Other combinational assigmnets                                   */
   /*---------------------------------------------------------------------------------------------*/
-  assign evt_o   = flgs_slave.evt[7:0];
+  // assign evt_o   = flgs_slave.evt[7:0];
+  assign evt_o = cntrl_slave.done; // Finished more then evt
 
 endmodule : redmule_ctrl
