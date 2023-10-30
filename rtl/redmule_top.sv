@@ -46,7 +46,10 @@ localparam int unsigned  BITW        = fp_width(FpFormat)  // Number of bits for
   // TCDM master ports for the memory sID_WIDTHe
   hci_core_intf.master            tcdm       ,
   // Periph slave port for the controller sID_WIDTHe
-  hwpe_ctrl_intf_periph.slave periph
+  hwpe_ctrl_intf_periph.slave periph,
+  // Trigger and soft clear
+    input  logic             hwpe_trigger_i,
+    input  logic             hwpe_soft_clear_i
 );
 
 localparam int unsigned DATAW_ALIGN = DATAW;
@@ -418,7 +421,9 @@ redmule_ctrl        #(
   .flush_o           ( engine_flush            ),
   .accumulate_o      ( accumulate              ),
   .cntrl_scheduler_o ( cntrl_scheduler         ),
-  .periph            ( periph_local            )
+  .periph            ( periph_local            ),
+  .hwpe_trigger_i    ( hwpe_trigger_i          ),
+  .hwpe_soft_clear_i ( hwpe_soft_clear_i       )
 );
     
 
