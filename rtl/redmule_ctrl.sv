@@ -377,6 +377,5 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
   /*                            Other combinational assigmnets                                   */
   /*---------------------------------------------------------------------------------------------*/
   assign evt_o   = flgs_slave.evt[7:0];
-  assign clear_o = hwpe_soft_clear_i; 
 
 endmodule : redmule_ctrl
