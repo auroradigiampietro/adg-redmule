@@ -28,7 +28,7 @@ module redmule_streamer
 parameter  int unsigned DW      = 288   ,
 parameter  int unsigned UW      = 1     ,
 parameter  int unsigned AW      = ADDR_W,
-localparam int unsigned REALIGN = 1
+localparam int unsigned REALIGN = 0
 )(
   input logic                    clk_i,
   input logic                    rst_ni,
@@ -54,12 +54,14 @@ localparam int unsigned REALIGN = 1
 // Here the dynamic mux for virtual_tcdm interfaces
 // coming/going from/to the accelerator to/from the memory
 hci_core_intf #( .DW ( DW ), 
-                 .UW ( UW ) ) load_st_tcdm [0:0] ( .clk ( clk_i ) );
+                 .UW ( UW ),
+                 .AW ( AW )  ) load_st_tcdm [0:0] ( .clk ( clk_i ) );
 
 hci_core_assign i_ld_st_assign ( .tcdm_slave (load_st_tcdm [0]), .tcdm_master (tcdm) );
 
 hci_core_intf #( .DW ( DW ),
-                 .UW ( UW ) ) virt_tcdm    [1:0] ( .clk ( clk_i ) );
+                 .UW ( UW ),
+                 .AW ( AW )  ) virt_tcdm    [1:0] ( .clk ( clk_i ) );
 
 hci_core_mux_dynamic #(
   .NB_IN_CHAN         ( 2            ),
@@ -74,7 +76,8 @@ hci_core_mux_dynamic #(
 );
 
 hci_core_intf #( .DW ( DW ),
-                 .UW ( UW ) ) z_to_cast [0:0] ( .clk ( clk_i ) );
+                 .UW ( UW ),
+                 .AW ( AW )  ) z_to_cast [0:0] ( .clk ( clk_i ) );
 hci_core_intf #( .DW ( DW ),
                  .UW ( UW ) ) z_to_tcdm [0:0] ( .clk ( clk_i ) );
 // Sink module that turns the incoming Z matrix stream into virtual TCDM interface
@@ -131,9 +134,11 @@ assign z_to_cast[0].r_user  = virt_tcdm[1].r_user;
 // Y matrix -> source[2]
 // source[3] is fake because the hci_core_mux_dynamic does not work with three sources
 hci_core_intf #( .DW ( DW ),
-                 .UW ( UW ) ) source       [3:0] ( .clk ( clk_i ) );
+                 .UW ( UW ),
+                 .AW ( AW )  ) source       [3:0] ( .clk ( clk_i ) );
 hci_core_intf #( .DW ( DW ),
-                 .UW ( UW ) ) mux_tcdm     [0:0] ( .clk ( clk_i ) );
+                 .UW ( UW ),
+                 .AW ( AW )  ) mux_tcdm     [0:0] ( .clk ( clk_i ) );
 hci_core_intf #( .DW ( DW ),
                  .UW ( UW ) ) tcdm_cast    [0:0] ( .clk ( clk_i ) );
 
