@@ -25,10 +25,10 @@ import hwpe_stream_package::*;
 
 package redmule_pkg;
 
-  parameter int unsigned            DATA_W       = 320; // TCDM port dimension (in bits)
+  parameter int unsigned            DATA_W       = 256; // VRF port dimension (in bits)
   parameter int unsigned            MemDw        = 64;
   parameter int unsigned            ADDR_W       = hci_package::DEFAULT_AW;
-  parameter int unsigned            DATAW        = DATA_W - MemDw;
+  parameter int unsigned            DATAW        = DATA_W;
   parameter int unsigned            REDMULE_REGS = 19;
   parameter int unsigned            N_CONTEXT    = 2;
   parameter fpnew_pkg::fp_format_e  FPFORMAT     = fpnew_pkg::FP16;

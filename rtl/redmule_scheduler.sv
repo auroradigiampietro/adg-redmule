@@ -194,7 +194,7 @@ always_comb begin : address_gen_signals
     cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d0_len        = 32'd1;
     cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d0_stride     = 32'd0;
     cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d1_len        = W;
-    cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d1_stride     = reg_file_i.hwpe_params[X_D1_STRIDE];
+    cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d1_stride     = 32'd4;
     cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d2_stride     = '0;
     cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.dim_enable_1h = 2'b11;
     // Here we initialize the streamer source signals
@@ -202,9 +202,9 @@ always_comb begin : address_gen_signals
     cntrl_streamer_o.w_stream_source_ctrl.addressgen_ctrl.base_addr     = reg_file_i.hwpe_params[W_ADDR];
     cntrl_streamer_o.w_stream_source_ctrl.addressgen_ctrl.tot_len       = reg_file_i.hwpe_params[W_TOT_LEN];
     cntrl_streamer_o.w_stream_source_ctrl.addressgen_ctrl.d0_len        = reg_file_i.hwpe_params[W_ITERS][31:16];
-    cntrl_streamer_o.w_stream_source_ctrl.addressgen_ctrl.d0_stride     = reg_file_i.hwpe_params[W_D0_STRIDE];
+    cntrl_streamer_o.w_stream_source_ctrl.addressgen_ctrl.d0_stride     = 32'd4;
     cntrl_streamer_o.w_stream_source_ctrl.addressgen_ctrl.d1_len        = reg_file_i.hwpe_params[W_ITERS][15:0];
-    cntrl_streamer_o.w_stream_source_ctrl.addressgen_ctrl.d1_stride     = JMP;
+    cntrl_streamer_o.w_stream_source_ctrl.addressgen_ctrl.d1_stride     = 32'd4;
     cntrl_streamer_o.w_stream_source_ctrl.addressgen_ctrl.d2_stride     = 32'd0;
     cntrl_streamer_o.w_stream_source_ctrl.addressgen_ctrl.dim_enable_1h = 2'b11;
     // Here we initialize the streamer source signals
@@ -212,20 +212,20 @@ always_comb begin : address_gen_signals
     cntrl_streamer_o.y_stream_source_ctrl.addressgen_ctrl.base_addr     = reg_file_i.hwpe_params[Y_ADDR];
     cntrl_streamer_o.y_stream_source_ctrl.addressgen_ctrl.tot_len       = reg_file_i.hwpe_params[Z_TOT_LEN];
     cntrl_streamer_o.y_stream_source_ctrl.addressgen_ctrl.d0_len        = W;
-    cntrl_streamer_o.y_stream_source_ctrl.addressgen_ctrl.d0_stride     = reg_file_i.hwpe_params[Z_D0_STRIDE];
+    cntrl_streamer_o.y_stream_source_ctrl.addressgen_ctrl.d0_stride     = 32'd4;
     cntrl_streamer_o.y_stream_source_ctrl.addressgen_ctrl.d1_len        = reg_file_i.hwpe_params[W_ITERS][15:0];
-    cntrl_streamer_o.y_stream_source_ctrl.addressgen_ctrl.d1_stride     = JMP; 
-    cntrl_streamer_o.y_stream_source_ctrl.addressgen_ctrl.d2_stride     = reg_file_i.hwpe_params[Z_D2_STRIDE];
+    cntrl_streamer_o.y_stream_source_ctrl.addressgen_ctrl.d1_stride     = 32'd4; 
+    cntrl_streamer_o.y_stream_source_ctrl.addressgen_ctrl.d2_stride     = 32'd4;
     cntrl_streamer_o.y_stream_source_ctrl.addressgen_ctrl.dim_enable_1h = 2'b11;
     // Here we initialize the streamer sink signals for
     // the Z stream sink
     cntrl_streamer_o.z_stream_sink_ctrl.addressgen_ctrl.base_addr     = reg_file_i.hwpe_params[Z_ADDR];
     cntrl_streamer_o.z_stream_sink_ctrl.addressgen_ctrl.tot_len       = reg_file_i.hwpe_params[Z_TOT_LEN];
     cntrl_streamer_o.z_stream_sink_ctrl.addressgen_ctrl.d0_len        = W;
-    cntrl_streamer_o.z_stream_sink_ctrl.addressgen_ctrl.d0_stride     = reg_file_i.hwpe_params[Z_D0_STRIDE];
+    cntrl_streamer_o.z_stream_sink_ctrl.addressgen_ctrl.d0_stride     = 32'd4;
     cntrl_streamer_o.z_stream_sink_ctrl.addressgen_ctrl.d1_len        = reg_file_i.hwpe_params[W_ITERS][15:0];
-    cntrl_streamer_o.z_stream_sink_ctrl.addressgen_ctrl.d1_stride     = JMP;
-    cntrl_streamer_o.z_stream_sink_ctrl.addressgen_ctrl.d2_stride     = reg_file_i.hwpe_params[Z_D2_STRIDE];
+    cntrl_streamer_o.z_stream_sink_ctrl.addressgen_ctrl.d1_stride     = 32'd4;
+    cntrl_streamer_o.z_stream_sink_ctrl.addressgen_ctrl.d2_stride     = 32'd4;
     cntrl_streamer_o.z_stream_sink_ctrl.addressgen_ctrl.dim_enable_1h = 2'b11;
 end
 
