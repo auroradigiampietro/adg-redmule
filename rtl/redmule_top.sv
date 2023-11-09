@@ -55,7 +55,7 @@ localparam int unsigned  BITW        = fp_width(FpFormat)  // Number of bits for
 localparam int unsigned DATAW_ALIGN = DATAW;
 
 logic                       fsm_z_clk_en, ctrl_z_clk_en;
-logic                       enable, soft_clear;
+logic                       enable, clear, soft_clear;
 logic                       y_buffer_depth_count,
                             y_buffer_load,
                             z_buffer_fill,
@@ -144,7 +144,7 @@ redmule_streamer #(
   .test_mode_i    ( test_mode_i    ),
   // Controller generated signals
   .enable_i       ( 1'b1           ),
-  .clear_i        ( hwpe_soft_clear_i          ),
+  .clear_i        ( clear          ),
   // Source interfaces for the incoming streams
   .x_stream_o     ( x_buffer_d     ),
   .w_stream_o     ( w_buffer_d     ),
@@ -163,7 +163,7 @@ hwpe_stream_fifo #(
 ) i_x_buffer_fifo (               
   .clk_i          ( clk_i         ),
   .rst_ni         ( rst_ni        ),
-  .clear_i        ( hwpe_soft_clear_i         ),
+  .clear_i        ( clear         ),
   .flags_o        (               ),             
   .push_i         ( x_buffer_d    ),
   .pop_o          ( x_buffer_fifo )
@@ -175,7 +175,7 @@ hwpe_stream_fifo #(
 ) i_w_buffer_fifo (
   .clk_i          ( clk_i         ),
   .rst_ni         ( rst_ni        ),
-  .clear_i        ( hwpe_soft_clear_i         ),
+  .clear_i        ( clear         ),
   .flags_o        ( w_fifo_flgs   ),             
   .push_i         ( w_buffer_d    ),
   .pop_o          ( w_buffer_fifo )
@@ -187,7 +187,7 @@ hwpe_stream_fifo #(
 ) i_y_buffer_fifo (
   .clk_i          ( clk_i         ),
   .rst_ni         ( rst_ni        ),
-  .clear_i        ( hwpe_soft_clear_i         ),
+  .clear_i        ( clear         ),
   .flags_o        (               ),             
   .push_i         ( y_buffer_d    ),
   .pop_o          ( y_buffer_fifo )
@@ -199,7 +199,7 @@ hwpe_stream_fifo #(
 ) i_z_buffer_fifo (               
   .clk_i          ( clk_i         ),
   .rst_ni         ( rst_ni        ),
-  .clear_i        ( hwpe_soft_clear_i         ),
+  .clear_i        ( clear         ),
   .flags_o        (               ),             
   .push_i         ( z_buffer_q    ),
   .pop_o          ( z_buffer_fifo )
@@ -237,7 +237,7 @@ redmule_x_buffer #(
 ) i_x_buffer  (
   .clk_i      ( x_buffer_clock      ),
   .rst_ni     ( rst_ni              ),
-  .clear_i    ( hwpe_soft_clear_i || soft_clear ),
+  .clear_i    ( clear || soft_clear ),
   .ctrl_i     ( x_buffer_ctrl       ),
   .flags_o    ( x_buffer_flgs       ),
   .x_buffer_o ( x_buffer_q          ),
@@ -252,7 +252,7 @@ redmule_w_buffer #(
 ) i_w_buffer  (
   .clk_i      ( clk_i               ),
   .rst_ni     ( rst_ni              ),
-  .clear_i    ( hwpe_soft_clear_i || soft_clear ),
+  .clear_i    ( clear || soft_clear ),
   .ctrl_i     ( w_buffer_ctrl       ),
   .flags_o    ( w_buffer_flgs       ),
   .w_buffer_o ( w_buffer_q          ),
@@ -267,7 +267,7 @@ redmule_z_buffer #(
 ) i_z_buffer     (
   .clk_i         ( clk_i               ),
   .rst_ni        ( rst_ni              ),
-  .clear_i       ( hwpe_soft_clear_i || soft_clear ),
+  .clear_i       ( clear || soft_clear ),
   .reg_enable_i  ( reg_enable          ),
   .ctrl_i        ( z_buffer_ctrl       ),
   .flags_o       ( z_buffer_flgs       ),
@@ -337,7 +337,7 @@ assign op_mod           = cntrl_engine.op_mod;
 assign in_tag           = 1'b0;
 assign in_aux           = 1'b0;
 assign in_valid         = cntrl_engine.in_valid;
-assign flush            = cntrl_engine.flush | hwpe_soft_clear_i;
+assign flush            = cntrl_engine.flush | clear;
 assign out_ready        = cntrl_engine.out_ready;
 always_comb begin
   for (int w = 0; w < Width; w++) begin
@@ -408,7 +408,7 @@ redmule_ctrl        #(
   .rst_ni            ( rst_ni                  ),
   .test_mode_i       ( test_mode_i             ),
   .busy_o            ( busy_o                  ),
-  .clear_o           ( /*Unused*/                   ),
+  .clear_o           ( clear                   ),
   .evt_o             ( evt_o                   ),
   .z_fill_o          ( z_buffer_fill           ),
   .w_shift_o         ( w_shift                 ),
@@ -439,7 +439,7 @@ redmule_scheduler    #(
   .clk_i              ( clk_i               ),
   .rst_ni             ( rst_ni              ),
   .test_mode_i        ( test_mode_i         ),
-  .clear_i            ( hwpe_soft_clear_i               ),
+  .clear_i            ( clear               ),
   .x_valid_i          ( x_buffer_fifo.valid ),
   .x_strb_i           ( x_buffer_fifo.strb  ),
   .w_valid_i          ( w_buffer_fifo.valid ),

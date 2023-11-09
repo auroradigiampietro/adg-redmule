@@ -131,7 +131,7 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
     if(~rst_ni) begin
        current <= REDMULE_IDLE;
     end else begin
-      if (hwpe_soft_clear_i) 
+      if (hwpe_soft_clear_i || clear) 
         current <= REDMULE_IDLE;
       else
         current <= next;
@@ -143,7 +143,7 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
     if(~rst_ni) begin
       w_row_count_q <= '0;
     end else begin
-      if (hwpe_soft_clear_i) 
+      if (hwpe_soft_clear_i || clear) 
         w_row_count_q <= '0;
       else
         w_row_count_q <= w_row_count_d;
@@ -154,7 +154,7 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
     if(~rst_ni) begin
       count_w_q <= 1'b0;
     end else begin
-      if (hwpe_soft_clear_i || w_computed_rst)
+      if (hwpe_soft_clear_i || clear || w_computed_rst)
           count_w_q <= 1'b0;
       else if (w_computed_en)
           count_w_q <= 1'b1;
@@ -167,7 +167,7 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
     if(~rst_ni) begin
       w_computed <= '0;
     end else begin
-      if (w_computed_rst || hwpe_soft_clear_i)
+      if (w_computed_rst || hwpe_soft_clear_i || clear)
         w_computed <= '0;
       else if (count_w_q && reg_enable_i)
         w_computed <= w_computed + 1;
@@ -179,7 +179,7 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
     if (~rst_ni) begin
       accumulate_ctrl_q <= 1'b0;
     end else begin
-      if (hwpe_soft_clear_i || reg_enable_i)
+      if (hwpe_soft_clear_i || clear || reg_enable_i)
         accumulate_ctrl_q <= 1'b0;
       else if (!reg_enable_i && !accumulate_q)
         accumulate_ctrl_q <= 1'b1;
@@ -191,7 +191,7 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
     if(~rst_ni) begin
       accumulate_q <= 1'b0;
     end else begin
-      if (accumulate_rst || hwpe_soft_clear_i)
+      if (accumulate_rst || hwpe_soft_clear_i || clear)
         accumulate_q <= 1'b0;
       else if (accumulate_en)
         accumulate_q <= 1'b1;
@@ -203,7 +203,7 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
     if(~rst_ni) begin
       last_w_row <= 1'b0;
     end else begin
-      if (last_w_row_rst || hwpe_soft_clear_i)
+      if (last_w_row_rst || hwpe_soft_clear_i || clear)
         last_w_row <= 1'b0;
       else if (last_w_row_en) 
         last_w_row <= 1'b1;
@@ -218,7 +218,7 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
     if(~rst_ni) begin
       z_storings_q <= '0;
     end else begin
-      if (hwpe_soft_clear_i || storing_rst) 
+      if (hwpe_soft_clear_i || clear || storing_rst) 
         z_storings_q <= '0;
       else
         z_storings_q <= z_storings_d;
@@ -267,7 +267,7 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
         busy_o    = 1'b0;
         z_storings_d = '0;
         w_row_count_d  = '0;
-        if (hwpe_soft_clear_i)
+        if (hwpe_soft_clear_i || clear)
           z_buffer_clk_en = 1'b1;
         if (hwpe_trigger_i || test_mode_i)
           next = REDMULE_STARTING;
@@ -378,5 +378,6 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
   /*---------------------------------------------------------------------------------------------*/
   assign evt_o   = flgs_slave.evt[7:0];
   // assign evt_o = cntrl_slave.done; // Finished more then evt
+  assign clear_o = hwpe_soft_clear_i || clear;
 
 endmodule : redmule_ctrl
