@@ -269,7 +269,7 @@ localparam int unsigned LEFT_PARAMS   = LEFT_PARAMS
         w_row_count_d  = '0;
         if (hwpe_soft_clear_i || clear)
           z_buffer_clk_en = 1'b1;
-        if (hwpe_trigger_i || test_mode_i)
+        if (hwpe_trigger_i || flgs_slave.start || test_mode_i)
           next = REDMULE_STARTING;
         else 
           next = REDMULE_IDLE;
