@@ -43,10 +43,10 @@ localparam int unsigned          TOT_DEPTH = H*D
   input logic                                       [DW-1:0] x_buffer_i
 );
 
-logic                       rst_w_load, rst_d_shift, rst_h_shift, empty_rst;
+logic                       rst_w_load, rst_d_shift, rst_h_shift, empty_rst, rst_d_load;
 logic [$clog2(W):0]         w_index, w_limit;
 logic [$clog2(H)-1:0]       h_index;
-logic [$clog2(D):0]         d_shift, empty_count, empty_count_q;
+logic [$clog2(D):0]         d_shift, empty_count, empty_count_q, d_index;
 logic [$clog2(TOT_DEPTH):0] depth;
 logic [D-1:0][W-1:0][H-1:0][BITW-1:0]     x_pad_q;
 logic [(D/2)-1:0][W-1:0][H-1:0][BITW-1:0] x_buffer_q;
@@ -63,7 +63,7 @@ always_ff @(posedge clk_i or negedge rst_ni) begin : bump_register
     if (ctrl_i.load) begin
       for (int d = 0; d < D; d++) begin
         for (int h = 0; h < H; h++) begin
-          x_pad_q[d][w_index][h] <= ( (H*d + h) < depth ) ? x_buffer_i[(H*d + h)*BITW+:BITW] : '0;
+          x_pad_q[d_index][w_index + d][h] <= ( (H*d + h) < depth ) ? x_buffer_i[(H*d + h)*BITW+:BITW] : '0;
         end
       end
     end
@@ -108,9 +108,23 @@ always_ff @(posedge clk_i or negedge rst_ni) begin : row_loaded_counter
     if (rst_w_load || clear_i)
       w_index <= '0;
     else if (ctrl_i.load)
-      w_index <= w_index + 1; 
+      w_index <= w_index + H; 
     else
       w_index <= w_index;
+  end
+end
+
+// Counter to track the queue that have to be loaded
+always_ff @(posedge clk_i or negedge rst_ni) begin : queue_loaded_counter
+  if(~rst_ni) begin
+    d_index <= '0;
+  end else begin
+    if (rst_d_load || clear_i)
+      d_index <= '0;
+    else if (ctrl_i.load & rst_w_load)
+      d_index <= d_index + 1; 
+    else
+      d_index <= d_index;
   end
 end
 
@@ -118,9 +132,12 @@ assign w_limit = (ctrl_i.rows_lftovr != '0) ? ctrl_i.rows_lftovr : W;
 
 always_comb begin : load_count_rst
   rst_w_load   = 1'b0;
+  rst_d_load   = 1'b0;
   flags_o.full = 1'b0;
-  if (w_index == w_limit || w_index == W) begin
+  if (w_index == w_limit || w_index == (W-H))
     rst_w_load   = 1'b1;
+  else if (d_index == D) begin
+    rst_d_load   = 1'b1;
     flags_o.full = 1'b1;
   end else begin
     rst_w_load   = 1'b0;
