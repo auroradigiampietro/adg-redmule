@@ -180,7 +180,8 @@ fpnew_pkg::fp_format_e input_cast_src_fmt ,
                        output_cast_dst_fmt;
 
 // JMP = 32 if streamer ports are 256 bit wide and parallelism is 32 bit
-  localparam int unsigned JMP    = (MemDw/8 * DATA_W/MemDw) - MemDw/8;
+  // localparam int unsigned JMP    = (MemDw/8 * DATA_W/MemDw) - MemDw/8;
+localparam int unsigned JMP    = 32'd4;
 localparam int unsigned NBYTES = BITW/8;
 
 typedef enum logic [3:0] {ENGINE_IDLE, PRELOAD_Y, LOAD_Y, X_REQ, W_REQ, STORE_REQ, FIRST_LOAD, WAIT, WAIT_ONE, WAIT_TWO, LOAD_X, LOAD_W, STORE, SKIP_W} redmule_fsm_state;
@@ -189,11 +190,11 @@ redmule_fsm_state current, next;
 always_comb begin : address_gen_signals
   // Here we initialize the streamer source signals 
   // for the X stream source
-    cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.base_addr     = reg_file_i.hwpe_params[X_ADDR] + x_rows_offs_q + x_cols_offs_q;
-    cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.tot_len       = (x_rows_lftovr_q == 0) ? W : x_rows_lftovr_q;
+    cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.base_addr     = reg_file_i.hwpe_params[X_ADDR] + x_rows_offs_q + x_cols_offs_q*6; // 6 is tot_len
+    cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.tot_len       = (x_rows_lftovr_q == 0) ? W/2 : x_rows_lftovr_q;
     cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d0_len        = 32'd1;
     cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d0_stride     = 32'd0;
-    cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d1_len        = W;
+    cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d1_len        = W/2;
     cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d1_stride     = 32'd4;
     cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.d2_stride     = '0;
     cntrl_streamer_o.x_stream_source_ctrl.addressgen_ctrl.dim_enable_1h = 2'b11;
@@ -1064,6 +1065,7 @@ clear_regs       = 1'b0;
         x_preloaded_en = 1'b1;
         next = W_REQ;
         n_waits_d = '0;
+        x_buffer_clk_en = 1'b0;
       end else
         next = FIRST_LOAD;
     end
@@ -1086,7 +1088,7 @@ clear_regs       = 1'b0;
       endcase
       if (!cntrl_scheduler_i.first_load) begin
         x_cols_offs_d = '0;
-        x_rows_offs_d = x_rows_offs_q + reg_file_i.hwpe_params[X_ROWS_OFFS];
+        x_rows_offs_d = x_rows_offs_q + JMP;
       end 
     end
 
@@ -1170,8 +1172,9 @@ clear_regs       = 1'b0;
         h_shift_d = h_shift_q + 1;
       end
 
-      if (h_shift_q == H - 1 && w_valid_i) begin
-        cntrl_x_buffer_o.d_shift = 1'b1;
+      if (h_shift_q == 1 && w_valid_i) begin
+        if(d_shift_d == 1 || d_shift_d == 3)
+          cntrl_x_buffer_o.d_shift = 1'b1;
         x_buffer_clk_en = 1'b1;
         d_shift_d = d_shift_q + 1;
         h_shift_d = '0;
@@ -1265,7 +1268,7 @@ clear_regs       = 1'b0;
         tot_x_loaded_d = tot_x_loaded_q + 1;
       end
       
-      if (tot_x_loaded_d == ((x_rows_lftovr_q == '0) ? W : x_rows_lftovr_q)) begin
+      if (tot_x_loaded_d == ((x_rows_lftovr_q == '0) ? W/2 : x_rows_lftovr_q)) begin
         tot_x_loaded_d = '0;
         load_x_rst = 1'b1;
         if (n_waits_q > 1) begin
@@ -1400,11 +1403,11 @@ clear_regs       = 1'b0;
               if (x_cols_lftovr_q != '0 && !loading_x_q)
                 x_cols_lftovr_rst = 1'b1;
             end else if (tot_store_q == reg_file_i.hwpe_params[LEFT_PARAMS][31:16] - 1) begin
-              if (x_cols_iter_q < reg_file_i.hwpe_params[X_ITERS][15:0] && tot_x_read_q < reg_file_i.hwpe_params[TOT_X_READ] - 1 || reg_file_i.hwpe_params[X_ITERS][31:16] == 16'b1) begin
+              if (x_cols_iter_q < reg_file_i.hwpe_params[X_ITERS][15:0] && tot_x_read_q < reg_file_i.hwpe_params[TOT_X_READ] - 1 || reg_file_i.hwpe_params[X_ITERS][31:16] == 16'd2) begin
                 cntrl_streamer_o.x_stream_source_ctrl.req_start = 1'b1;
                 tot_x_read_d = tot_x_read_q + 1;
               end
-            end else if (reg_file_i.hwpe_params[X_ITERS][31:16] == 16'b1) begin
+            end else if (reg_file_i.hwpe_params[X_ITERS][31:16] == 16'd2) begin
               cntrl_streamer_o.x_stream_source_ctrl.req_start = 1'b1;
               tot_x_read_d = tot_x_read_q + 1;
             end
@@ -1420,7 +1423,7 @@ clear_regs       = 1'b0;
 
                 end else begin
                   if (x_rows_iter_d < reg_file_i.hwpe_params[X_ITERS][31:16] - 1) begin
-                    x_rows_offs_d = x_rows_offs_q + reg_file_i.hwpe_params[X_ROWS_OFFS];
+                    x_rows_offs_d = x_rows_offs_q + JMP;
                     x_rows_iter_d = x_rows_iter_q + 1;
                     w_cols_d = 16'd0;
                   end else begin
@@ -1460,7 +1463,7 @@ clear_regs       = 1'b0;
             x_cols_offs_d = '0;
             if (w_cols_q == reg_file_i.hwpe_params[W_ITERS][15:0]) begin
               if (x_rows_iter_d < reg_file_i.hwpe_params[X_ITERS][31:16] - 1) begin
-                x_rows_offs_d = x_rows_offs_q + reg_file_i.hwpe_params[X_ROWS_OFFS];
+                x_rows_offs_d = x_rows_offs_q + JMP;
                 x_rows_iter_d = x_rows_iter_q + 1;
                 w_cols_d = 16'd0;
               end else begin

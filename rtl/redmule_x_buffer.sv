@@ -30,9 +30,9 @@ parameter int unsigned           Width     = ARRAY_WIDTH,   // Number of paralle
 localparam int unsigned          BITW      = fpnew_pkg::fp_width(FpFormat), // Number of bits for the given format                          
 localparam int unsigned          H         = Height,
 localparam int unsigned          W         = Width,
-localparam int unsigned          D         = DW/(H*BITW),
+localparam int unsigned          D         = 2,
 localparam int unsigned          HALF_D    = D/2,
-localparam int unsigned          TOT_DEPTH = H*D
+localparam int unsigned          TOT_DEPTH = H*H
 )(
   input  logic                                               clk_i     ,
   input  logic                                               rst_ni    ,
@@ -61,7 +61,7 @@ always_ff @(posedge clk_i or negedge rst_ni) begin : bump_register
     	x_buffer_q <= '0;
     end else
     if (ctrl_i.load) begin
-      for (int d = 0; d < D; d++) begin
+      for (int d = 0; d < H; d++) begin
         for (int h = 0; h < H; h++) begin
           x_pad_q[d_index][w_index + d][h] <= ( (H*d + h) < depth ) ? x_buffer_i[(H*d + h)*BITW+:BITW] : '0;
         end
@@ -72,7 +72,7 @@ always_ff @(posedge clk_i or negedge rst_ni) begin : bump_register
         for (int h = 0; h < H; h++) begin
           for (int d = 0; d < D; d++) begin
             x_pad_q[d][w][h] <= (d < D - 1) ? x_pad_q[d+1][w][h] : '0;
-            x_buffer_q[HALF_D-1][w][h] <= x_pad_q[0][w][h];
+            // x_buffer_q[HALF_D-1][w][h] <= x_pad_q[0][w][h];
           end
         end
       end
@@ -81,7 +81,7 @@ always_ff @(posedge clk_i or negedge rst_ni) begin : bump_register
       for (int w = 0; w < W; w++) begin
         for (int h = 0; h < H; h++) begin
           for (int d = 0; d < D; d++)
-    	    x_pad_q[d][w][h] <= (d < HALF_D) ? x_pad_q[d+2][w][h] : '0;
+    	    x_pad_q[d][w][h] <= (d < HALF_D) ? x_pad_q[d+1][w][h] : '0;
           for (int dd = 0; dd < HALF_D; dd++)
     	    x_buffer_q[dd][w][h] <= x_pad_q[dd][w][h];
         end
@@ -91,7 +91,7 @@ always_ff @(posedge clk_i or negedge rst_ni) begin : bump_register
       for (int w = 0; w < W; w++) begin
         for (int h = 0; h < H; h++) begin
           for (int d = 0; d < D; d++)
-            x_buffer_q[0][w][h_index] <= x_buffer_q[1][w][h_index];
+            x_buffer_q[0][w][h_index] <= x_pad_q[0][w][h_index];
         end
       end
     end
