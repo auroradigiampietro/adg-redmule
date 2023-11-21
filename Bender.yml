@@ -22,8 +22,8 @@ package:
     - "Yvan Tortorella (yvan.tortorella@unibo.it)"
 
 dependencies:
-  hwpe-stream       : { git: "https://github.com/auroradigiampietro/adg-hwpe-stream.git", rev: adg/spatz                              }
-  hci               : { git: "https://github.com/auroradigiampietro/adg-hci.git"       , rev: adg                                      }
+  hwpe-stream       : { git: "https://github.com/auroradigiampietro/adg-hwpe-stream.git", rev: adg/spatz                               }
+  hci               : { git: "https://github.com/auroradigiampietro/adg-hci.git"       , rev: d9beb3afc5f6472d3e593e60bd370d5035c371f0 } #maestro
   hwpe-ctrl         : { git: "https://github.com/auroradigiampietro/adg-hwpe-ctrl.git" , rev: adg/spatz_tb                             }
   FPnew:              { git: "https://github.com/pulp-platform/cvfpu.git",               rev:     pulp-v0.1.3                          }
   common_cells      : { git: "https://github.com/pulp-platform/common_cells.git"       , version: 1.21.0                               }
