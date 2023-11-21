@@ -102,7 +102,7 @@ always_comb begin : loading_and_shift_buffer
   end
 end
 
-assign depth = (ctrl_i.cols_lftovr == '0) ? TOT_DEPTH : ctrl_i.cols_lftovr;
+assign depth = TOT_DEPTH;
 
 // Counter to track the rows that have to be loaded
 always_ff @(posedge clk_i or negedge rst_ni) begin : row_loaded_counter
