@@ -48,8 +48,8 @@ logic [$clog2(W):0]         w_index, w_limit;
 logic [$clog2(H)-1:0]       h_index;
 logic [$clog2(D):0]         d_shift, empty_count, empty_count_q, d_index;
 logic [$clog2(TOT_DEPTH):0] depth;
-logic [D-1:0][W-1:0][H-1:0][BITW-1:0]     x_pad_q;
-logic [(D/2)-1:0][W-1:0][H-1:0][BITW-1:0] x_buffer_q;
+logic [D-1:0][W-1:0][H-1:0][BITW-1:0]     x_pad_q, x_pad_d;
+logic [(D/2)-1:0][W-1:0][H-1:0][BITW-1:0] x_buffer_q, x_buffer_d;
 
 always_ff @(posedge clk_i or negedge rst_ni) begin : bump_register
   if(~rst_ni) begin
@@ -59,40 +59,44 @@ always_ff @(posedge clk_i or negedge rst_ni) begin : bump_register
     if (clear_i) begin
     	x_pad_q    <= '0;
     	x_buffer_q <= '0;
-    end else
-    if (ctrl_i.load) begin
-      for (int d = 0; d < H; d++) begin
-        for (int h = 0; h < H; h++) begin
-          x_pad_q[d_index][w_index + d][h] <= ( (H*d + h) < depth ) ? x_buffer_i[(H*d + h)*BITW+:BITW] : '0;
+    end else begin
+      x_pad_q    <= x_pad_d;
+      x_buffer_q <= x_buffer_d;
+    end
+  end
+end
+
+always_comb begin : loading_and_shift_buffer
+  x_pad_d    = x_pad_q;
+  x_buffer_d = x_buffer_q;
+  if (ctrl_i.load) begin
+    for (int d = 0; d < H; d++) begin
+      for (int h = 0; h < H; h++) begin
+        x_pad_d[d_index][w_index + d][h] = ( (H*d + h) < depth ) ? x_buffer_i[(H*d + h)*BITW+:BITW] : '0;
+      end
+    end
+  end
+  if (ctrl_i.h_shift) begin
+    for (int w = 0; w < W; w++) begin
+      x_buffer_d[0][w][h_index] = x_pad_d[0][w][h_index];
+    end
+  end
+  if (ctrl_i.d_shift) begin
+    for (int w = 0; w < W; w++) begin
+      for (int h = 0; h < H; h++) begin
+        for (int d = 0; d < D; d++) begin
+          x_pad_d[d][w][h] = (d < D - 1) ? x_pad_d[d+1][w][h] : '0;
         end
       end
     end
-    if (ctrl_i.d_shift) begin
-      for (int w = 0; w < W; w++) begin
-        for (int h = 0; h < H; h++) begin
-          for (int d = 0; d < D; d++) begin
-            x_pad_q[d][w][h] <= (d < D - 1) ? x_pad_q[d+1][w][h] : '0;
-            // x_buffer_q[HALF_D-1][w][h] <= x_pad_q[0][w][h];
-          end
-        end
-      end
-    end 
-    if (ctrl_i.blck_shift) begin
-      for (int w = 0; w < W; w++) begin
-        for (int h = 0; h < H; h++) begin
-          for (int d = 0; d < D; d++)
-    	    x_pad_q[d][w][h] <= (d < HALF_D) ? x_pad_q[d+1][w][h] : '0;
-          for (int dd = 0; dd < HALF_D; dd++)
-    	    x_buffer_q[dd][w][h] <= x_pad_q[dd][w][h];
-        end
-      end
-    end
-    if (ctrl_i.h_shift) begin
-      for (int w = 0; w < W; w++) begin
-        for (int h = 0; h < H; h++) begin
-          for (int d = 0; d < D; d++)
-            x_buffer_q[0][w][h_index] <= x_pad_q[0][w][h_index];
-        end
+  end 
+  if (ctrl_i.blck_shift) begin
+    for (int w = 0; w < W; w++) begin
+      for (int h = 0; h < H; h++) begin
+        for (int dd = 0; dd < HALF_D; dd++)
+        x_buffer_d[dd][w][h] = x_pad_d[dd][w][h];
+        for (int d = 0; d < D; d++)
+        x_pad_d[d][w][h] = (d < HALF_D) ? x_pad_d[d+1][w][h] : '0;
       end
     end
   end
